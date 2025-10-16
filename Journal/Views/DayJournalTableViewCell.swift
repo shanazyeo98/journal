@@ -93,7 +93,7 @@ class DayJournalTableViewCell: UITableViewCell {
         descriptionLabel.text = log.description
         coffeeLabel.text = "☕️ : \(log.coffeeDrank)"
         if let image = log.photo {
-            customImageView.image = image
+            customImageView.image = UIImage(data: image)
         } else {
             customImageView.image = nil
         }

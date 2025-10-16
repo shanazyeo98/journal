@@ -55,7 +55,7 @@ class DayJournalEditViewController: UITableViewController, UIImagePickerControll
         imageView.clipsToBounds = true
         imageView.layer.cornerRadius = 24
         if let image = dayLog?.photo {
-            imageView.image = image
+            imageView.image = UIImage(data: image)
         } else {
             let config = UIImage.SymbolConfiguration(pointSize: 50, weight: .light)
             let placeholderImage = UIImage(systemName: "photo", withConfiguration: config)
@@ -154,11 +154,15 @@ class DayJournalEditViewController: UITableViewController, UIImagePickerControll
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let editedImage = info[.editedImage] as? UIImage {
-            tempLog.photo = editedImage
+            tempLog.photo = editedImage.pngData()
         } else if let originalImage = info[.originalImage] as? UIImage {
-            tempLog.photo = originalImage
+            tempLog.photo = originalImage.pngData()
         }
-        imageView.image = tempLog.photo
+        if let photo = tempLog.photo {
+            imageView.image = UIImage(data: photo)
+        } else {
+            imageView.image = nil
+        }
         dismiss(animated: true)
     }
     

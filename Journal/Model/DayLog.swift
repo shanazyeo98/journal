@@ -6,16 +6,17 @@
 //
 
 import Foundation
-import UIKit
 
-class DayLog {
+nonisolated struct DayLog: Identifiable, Codable, Hashable {
+    let id: UUID //required for diffable data source
     var date: Date
-    var photo: UIImage?
+    var photo: Data?
     var coffeeDrank: Int
     var description: String?
     var mood: Mood
     
-    init(date: Date = Date(), photo: UIImage? = nil, coffeeDrank: Int = 0, description: String? = nil, mood: Mood = .good) {
+    init(id: UUID = UUID(), date: Date = Date(), photo: Data? = nil, coffeeDrank: Int = 0, description: String? = nil, mood: Mood = .good) {
+        self.id = id
         self.date = date
         self.photo = photo
         self.coffeeDrank = coffeeDrank
@@ -24,4 +25,12 @@ class DayLog {
     }
 }
 
-var dayLogData: [Date : DayLog] = [:]
+//nonisolated extension DayLog {
+//    static func == (lhs: DayLog, rhs: DayLog) -> Bool {
+//        lhs.id == rhs.id
+//    }
+//
+//    func hash(into hasher: inout Hasher) {
+//        hasher.combine(id)
+//    }
+//}

@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum Mood: String, CaseIterable {
+nonisolated enum Mood: String, CaseIterable, Codable, Hashable {
     case good = "😊"
     case neutral = "😐"
     case bad = "😔"

@@ -16,8 +16,11 @@ class DayJournalDetailViewController: UITableViewController {
     var headerViewHeight: CGFloat = 200
     let imageViewPadding: CGFloat = 20
     
-    init(dayLog: DayLog) {
+    var delegate: DayJournalDetailViewControllerDelegate?
+    
+    init(dayLog: DayLog, delegate: DayJournalDetailViewControllerDelegate? = nil) {
         self.dayLog = dayLog
+        self.delegate = delegate
         super.init(style: .insetGrouped)
     }
     
@@ -39,7 +42,7 @@ class DayJournalDetailViewController: UITableViewController {
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         if let photo = dayLog.photo {
-            imageView.image = photo
+            imageView.image = UIImage(data: photo)
         } else {
             headerViewHeight = 0
         }
@@ -167,5 +170,10 @@ extension DayJournalDetailViewController: DayJournalEditViewControllerDelegate {
     func didUpdateItem(_ log: DayLog) {
         self.dayLog = log
         tableView.reloadData()
+        self.delegate?.didUpdateItem(log)
     }
+}
+
+protocol DayJournalDetailViewControllerDelegate: AnyObject {
+    func didUpdateItem(_ log: DayLog)
 }
