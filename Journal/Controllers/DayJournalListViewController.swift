@@ -33,6 +33,7 @@ class ListViewController: UIViewController {
         tableView.dataSource = dataSource
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
+        
         tableView.register(DayJournalTableViewCell.self, forCellReuseIdentifier: DayJournalTableViewCell.identifier)
         view.addSubview(tableView)
         NSLayoutConstraint.activate([
@@ -41,7 +42,7 @@ class ListViewController: UIViewController {
             tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor)
         ])
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addNewEntry))
+        switchToNonEditingMode()
         configureSearch()
         NotificationCenter.default.addObserver(forName: UIApplication.willResignActiveNotification,
         object: nil, queue: .main) { [weak self] _ in
@@ -50,6 +51,30 @@ class ListViewController: UIViewController {
         }
         applySnapshot()
     }
+    
+    @objc func switchToEditingMode() {
+        tableView.isEditing = true
+        tableView.allowsMultipleSelectionDuringEditing = true
+        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(switchToNonEditingMode))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .trash, target: self, action: #selector(deleteSelectedLogs))
+    }
+    
+    @objc func switchToNonEditingMode() {
+        tableView.isEditing = false
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addNewEntry))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(switchToEditingMode))
+    }
+    
+    @objc func deleteSelectedLogs() {
+        let indexPaths = tableView.indexPathsForSelectedRows
+        guard var indexPaths else { return }
+        indexPaths.sort { $0.row > $1.row }
+        for indexPath in indexPaths {
+            store.deleteItem(at: indexPath.row)
+        }
+        applySnapshot()
+    }
+
     
     func configureSearch() {
         searchController.searchResultsUpdater = self
@@ -123,6 +148,7 @@ class ListViewController: UIViewController {
     
 extension ListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if tableView.isEditing { return }
         let items = isSearching ? filteredLogs : store.getDayLogs()
         let log = items[indexPath.row]
         navigationController?.pushViewController(DayJournalDetailViewController(dayLog: log, delegate: self), animated: true)
